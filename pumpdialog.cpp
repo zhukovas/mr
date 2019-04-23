@@ -15,3 +15,23 @@ pumpDialog::~pumpDialog()
 {
     delete ui;
 }
+
+QString pumpDialog::getName()
+{
+    return ui->nameLineEdit->text();
+}
+
+QString pumpDialog::getConc()
+{
+    return ui->concLineEdit->text();
+}
+
+QString pumpDialog::getFeed()
+{
+    return  ui->feedLineEdit->text();
+}
+
+QString pumpDialog::getPump()
+{
+    return ui->pumpComboBox->currentText();
+}

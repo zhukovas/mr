@@ -14,6 +14,10 @@ class pumpDialog : public QDialog
 public:
     explicit pumpDialog(QWidget *parent = nullptr);
     ~pumpDialog();
+    QString getName();
+    QString getConc();
+    QString getFeed();
+    QString getPump();
 
 private:
     Ui::pumpDialog *ui;

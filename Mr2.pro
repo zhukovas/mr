@@ -29,18 +29,21 @@ SOURCES += \
         mainwindow.cpp \
     settingsdialog.cpp \
     moduls.cpp \
-    pumpdialog.cpp
+    pumpdialog.cpp \
+    reactordialog.cpp
 
 HEADERS += \
         mainwindow.h \
     settingsdialog.h \
     moduls.h \
-    pumpdialog.h
+    pumpdialog.h \
+    reactordialog.h
 
 FORMS += \
         mainwindow.ui \
     settingsdialog.ui \
-    pumpdialog.ui
+    pumpdialog.ui \
+    reactordialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

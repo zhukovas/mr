@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>pumpDialog</class>
- <widget class="QDialog" name="pumpDialog">
+ <class>reactorDialog</class>
+ <widget class="QDialog" name="reactorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,62 +17,28 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Pump settings</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::PlainText</enum>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <string>Thermostat parameters</string>
      </property>
     </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Pump</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="pumpComboBox">
-       <item>
-        <property name="text">
-         <string>Pump 1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pump 2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pump 3</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pump 4</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Substance name</string>
+        <string>Temperature</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="nameLineEdit"/>
+      <widget class="QLineEdit" name="temperLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:super;&quot;&gt;0&lt;/span&gt;C&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -81,17 +47,17 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Concentration</string>
+        <string>Coil reactor length</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="concLineEdit"/>
+      <widget class="QLineEdit" name="coilLineEdit"/>
      </item>
      <item>
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>mmol/L</string>
+        <string>cm</string>
        </property>
       </widget>
      </item>
@@ -99,27 +65,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Feed rate</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="feedLineEdit"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>ml/min</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

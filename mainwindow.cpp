@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
+#include "moduls.h"
 
 #include <QtSerialPort/QSerialPort>
 #include <QtCore/QtGlobal>
@@ -13,14 +14,21 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     settings = new SettingsDialog;
+    serialTimer = new QTimer;
+
+    connect(ui->actionSettings, &QAction::triggered, settings, &MainWindow::show);
+    connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
+    connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
+
+    ui->actionConnect->setDisabled(false);
+    ui->actionDisconnect->setDisabled(true);
 
     connect(serial, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
             this, &MainWindow::handleError);
 
-
     connect(serial, &QSerialPort::readyRead, this, &MainWindow::readData);
 
-    //connect(console, &Console::getData, this, &MainWindow::writeData);
+    connect(serialTimer,&QTimer::timeout, this, &MainWindow::writeData);
 
     scene = new QGraphicsScene();
 
@@ -28,24 +36,26 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->reactorButton, &QPushButton::clicked, this, &MainWindow::addReactor);
 
 
+    connect(ui->start,&QPushButton::clicked,this,&MainWindow::startSlot);
 
     ui->graphicsView->setScene(scene);  // Устанавливаем графическую сцену в graphicsView
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);    // Устанавливаем сглаживание
+    ui->graphicsView->setMouseTracking(true);
     //ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // Отключаем скроллбар по вертикали
     //ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // Отключаем скроллбар по горизонтали
 
     scene->setSceneRect(-250,-250,500,500);
 
-    //scene->addLine(-250,0,250,0,QPen(Qt::black));
-    //scene->addLine(0,-250,0,250,QPen(Qt::black));
-
+    speed_1= 0;
+    speed_2= 0;
+    speed_3= 0;
+    speed_4= 0;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete settings;
-
 }
 
 void MainWindow::addPump()
@@ -53,6 +63,10 @@ void MainWindow::addPump()
     pump = new Pump();
     scene->addItem(pump);
     pump->setPos(0,0);
+    connect(pump,&Pump::pump1signal,this,&MainWindow::pump1slot);
+    connect(pump,&Pump::pump2signal,this,&MainWindow::pump2slot);
+    connect(pump,&Pump::pump3signal,this,&MainWindow::pump3slot);
+    connect(pump,&Pump::pump4signal,this,&MainWindow::pump4slot);
 }
 
 void MainWindow::addReactor()
@@ -60,6 +74,37 @@ void MainWindow::addReactor()
     reactor = new Reactor();
     scene->addItem(reactor);
     reactor->setPos(0,0);
+}
+
+void MainWindow::pump1slot(QString str)
+{
+    speed_1 = str.toInt();
+    qDebug() << QString("1."+str);
+}
+
+void MainWindow::pump2slot(QString str)
+{
+    speed_2 = str.toInt();
+}
+
+void MainWindow::pump3slot(QString str)
+{
+    speed_3 = str.toInt();
+}
+
+void MainWindow::pump4slot(QString str)
+{
+    speed_4 = str.toInt();
+}
+
+void MainWindow::startSlot()
+{
+    serialStack.append(QString("1.%1").arg(speed_1));
+    serialStack.append(QString("2.%1").arg(speed_2));
+    serialStack.append(QString("3.%1").arg(speed_3));
+    serialStack.append(QString("4.%1").arg(speed_4));
+
+    serialTimer->start(300);
 }
 
 //****************************************************Serisl*************************************
@@ -77,8 +122,12 @@ void MainWindow::openSerialPort()
     serial->setFlowControl(p.flowControl);
     if (serial->open(QIODevice::ReadWrite)) {
 
+        ui->actionConnect->setDisabled(true);
+        ui->actionDisconnect->setDisabled(false);
+
     } else {
 
+        QMessageBox::information(this,"Ups...","Error opening serial port");
     }
 }
 
@@ -86,7 +135,8 @@ void MainWindow::closeSerialPort()
 {
     if (serial->isOpen())
         serial->close();
-
+    ui->actionConnect->setDisabled(false);
+    ui->actionDisconnect->setDisabled(true);
 }
 
 void MainWindow::readData()
@@ -94,9 +144,9 @@ void MainWindow::readData()
     QByteArray data = serial->readAll();
 }
 
-void MainWindow::writeData(QString data)
+void MainWindow::writeData()
 {
-    serial->write(data.toLocal8Bit());
+    serial->write(serialStack.pop().toLocal8Bit());
 }
 
 void MainWindow::handleError(QSerialPort::SerialPortError error)
