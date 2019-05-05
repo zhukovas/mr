@@ -1,7 +1,8 @@
 #include "moduls.h"
-//#include "mainwindow.h"
+#include "mainwindow.h"
 #include "pumpdialog.h"
 #include "reactordialog.h"
+#include "collectordialog.h"
 #include "qdebug.h"
 #include <QMessageBox>
 
@@ -11,7 +12,7 @@ Pump::Pump(QObject *parent) : QObject (), QGraphicsItem()
 {
 
     this->setAcceptHoverEvents(true);
-    pointPump = false;
+    pointRed = false;
 }
 
 Pump::~Pump()
@@ -29,8 +30,8 @@ QRectF Pump::boundingRect() const
 Reactor::Reactor(QObject *parent) : QObject(), QGraphicsItem()
 {
     this->setAcceptHoverEvents(true);
-    pointIn = false;
-    pointOut = false;
+    in = false;
+    out = false;
 }
 
 Reactor::~Reactor()
@@ -38,9 +39,65 @@ Reactor::~Reactor()
 
 }
 
+
+Collector::Collector(QObject *parent) : QObject(), QGraphicsItem()
+{
+
+    this->setAcceptHoverEvents(true);
+    point = false;
+}
+
+
+Collector::~Collector()
+{
+
+}
+
+QRectF Collector::boundingRect() const
+{
+    return QRectF(-80,-80,160,160);
+}
+
+void Collector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::FlatCap));
+    painter->setBrush(QBrush(Qt::white, Qt::SolidPattern));
+    painter->drawEllipse(-70, -70, 140, 140);
+
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+}
+
+void Collector::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    this->setPos(mapToScene(event->pos()));
+    Q_UNUSED(event);
+}
+
+void Collector::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void Collector::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void Collector::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void Collector::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+
 QRectF Reactor::boundingRect() const
 {
-    return QRectF(-110,-70,220,140);
+    return QRectF(-110,-90,220,180);
 }
 
 void Reactor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -61,30 +118,16 @@ void Reactor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
             painter->drawLine(p1, p2);
         }
 
-    if(pointIn)
-        {
-            painter->setPen(QPen(Qt::green, 2, Qt::SolidLine, Qt::FlatCap));
-            painter->setBrush(QBrush(Qt::green, Qt::SolidPattern));
-            painter->drawEllipse(-105, 0, 10, 10);
-        } else
-        {
-            painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::FlatCap));
-            painter->setBrush(QBrush(Qt::black, Qt::SolidPattern));
-            painter->drawEllipse(-105, 0, 10, 10);
-        }
+    if(QString("%1").arg(temper) !="")
+    {
+        painter->drawText(-70,67,QString("Temperature: /%1 C  Error").arg(temper));
+    }
 
+    if(QString("%1").arg(coil) !="")
+    {
+        painter->drawText(-70,80,QString("Coil volume: %1 mkl").arg(coil.toInt()*7.85));
+    }
 
-        if(pointOut)
-        {
-            painter->setPen(QPen(Qt::green, 2, Qt::SolidLine, Qt::FlatCap));
-            painter->setBrush(QBrush(Qt::green, Qt::SolidPattern));
-            painter->drawEllipse(84, 0, 10, 10);
-        } else
-        {
-            painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::FlatCap));
-            painter->setBrush(QBrush(Qt::black, Qt::SolidPattern));
-            painter->drawEllipse(84, 0, 10, 10);
-        }
         Q_UNUSED(option);
         Q_UNUSED(widget);
 }
@@ -103,7 +146,7 @@ void Pump::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     painter->drawEllipse(-35, 3, 20, 20);
     painter->drawEllipse(-40, -20, 40, 40);
 
-    if(pointPump)
+    if(pointRed)
     {
         painter->setPen(QPen(Qt::green, 2, Qt::SolidLine, Qt::FlatCap));
         painter->setBrush(QBrush(Qt::green, Qt::SolidPattern));
@@ -196,20 +239,19 @@ void Pump::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void Pump::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     int x = event->pos().x();
-        int y = event->pos().y();
+    int y = event->pos().y();
 
-        QRectF r(45, -5, 10, 10);
+    if ((x==46 || x==47 || x==48 || x==49 || x==50 || x==51 || x==52 || x==53) &&
+           (y == -4 ||  y == -3 ||  y == -2 ||  y == -1 ||  y == 0 ||  y == 1 ||  y == 2 || y == 3)  )
+    {
+        pointRed=true;
+        this->update(boundingRect());
 
-        if (r.contains(event->pos().x(),event->pos().y()))
-        {
-            pointPump=true;
-            this->update(boundingRect());
-
-        } else
-        {
-           pointPump=false;
-           this->update(boundingRect());
-        }
+    } else
+    {
+       pointRed=false;
+       this->update(boundingRect());
+    }
 
 }
 
@@ -245,37 +287,25 @@ void Reactor::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
      if (reactorD->exec() == QDialog::Accepted) {
          temper = reactorD->getTemper();
          coil = reactorD->getCoil();
+         emit reactor_t_signal(temper);
      }
     Q_UNUSED(event);
 }
 
 void Reactor::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-    int x = event->pos().x();
-       int y = event->pos().y();
-       QRectF r1(-105, 0, 10, 10);
-       QRectF r2(84, 0, 10, 10);
 
-
-       if (r1.contains(event->pos().x(),event->pos().y()))
-       {
-           pointIn=true;
-           this->update(boundingRect());
-
-       } else
-       {
-          pointIn=false;
-          this->update(boundingRect());
-       }
-       if (r2.contains(event->pos().x(),event->pos().y()))
-       {
-           pointOut=true;
-           this->update(boundingRect());
-
-       } else
-       {
-          pointOut=false;
-          this->update(boundingRect());
-       }
     Q_UNUSED(event);
 }
+
+void Reactor::temperSlot(int t)
+{
+
+}
+
+void Reactor::temperEeeorSlot(int t)
+{
+
+}
+
+

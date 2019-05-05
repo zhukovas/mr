@@ -30,7 +30,18 @@ public:
     int speed_3;
     int speed_4;
 
+    int temperature;
+    int t1;
+    int t2;
+    int t0;
+    int t_err;
+
     QTimer *serialTimer;
+    QTimer *temperTimer;
+
+signals:
+    void temperSignal(int);
+    void temperEeeorSignal(int);
 
 private slots:
     void openSerialPort();
@@ -38,12 +49,11 @@ private slots:
     void readData();
     void handleError(QSerialPort::SerialPortError error);
     void writeData();
-
-    void openSlot();
-    void save_asSlot();
+    void temperControl();
 
     void addPump();
     void addReactor();
+    void addCollector();
 
 
 
@@ -52,17 +62,24 @@ private slots:
     void pump3slot(QString str);
     void pump4slot(QString str);
 
+    void reactor_t_slot(QString str);
+
     void startSlot();
+
+
 
 private:
 
-
+    int termistorToTemperature(int t);
     Ui::MainWindow *ui;
     SettingsDialog *settings;
     QSerialPort *serial;
     Pump *pump;
     Reactor *reactor;
+    Collector *collector;
     QGraphicsScene  *scene;
+
+
 };
 
 #endif // MAINWINDOW_H
