@@ -6,6 +6,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtCore/QtGlobal>
 #include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSettings, &QAction::triggered, settings, &MainWindow::show);
     connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
     connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
+    connect(ui->actionOpen, &QAction::triggered,this, &MainWindow::openSlot);
+    connect(ui->actionSave, &QAction::triggered,this, &MainWindow::saveSlot);
+    connect(ui->actionSave_as, &QAction::triggered,this, &MainWindow::save_asSlot);
 
     ui->actionConnect->setDisabled(false);
     ui->actionDisconnect->setDisabled(true);
@@ -125,13 +129,42 @@ void MainWindow::reactor_t_slot(QString str)
 
 void MainWindow::startSlot()
 {
-    serialStack.append(QString("1.%1").arg(speed_1));
-    serialStack.append(QString("2.%1").arg(speed_2));
-    serialStack.append(QString("3.%1").arg(speed_3));
-    serialStack.append(QString("4.%1").arg(speed_4));
+    if(serial->isOpen())
+            {
+        serialStack.append(QString("1.%1").arg(speed_1));
+        serialStack.append(QString("2.%1").arg(speed_2));
+        serialStack.append(QString("3.%1").arg(speed_3));
+        serialStack.append(QString("4.%1").arg(speed_4));
 
-    serialTimer->start(300);
-    temperTimer->start(5000);
+        serialTimer->start(300);
+
+        temperTimer->start(5000);
+    } else {
+   QMessageBox::information(0,"Error","Всё в говне");
+    }
+
+}
+
+void MainWindow::openSlot()
+{
+    QString f = QFileDialog::getOpenFileName(0,"Open file","","*.dat");
+}
+
+void MainWindow::save_asSlot()
+{
+    QString f = QFileDialog::getSaveFileName(0,"Save as...","","*.dat");
+
+       QFile file( f );
+       if ( file.open(QIODevice::ReadWrite) )
+       {
+           QTextStream stream( &f );
+           stream << "something" << endl;
+       }
+}
+
+void MainWindow::saveSlot()
+{
+
 }
 
 void MainWindow::temperControl()
@@ -162,6 +195,7 @@ void MainWindow::temperControl()
 int MainWindow::termistorToTemperature(int t)
 {
    return int(-t*t*t*0.000000537 + 0.000951782*t*t - 0.687553341*t +287.453100415);
+
 }
 
 //****************************************************Serisl*************************************

@@ -24,8 +24,8 @@ private:
     QString temper;
     QString coil;
 
-    bool in;
-    bool out;
+    bool pointIn;
+    bool pointOut;
 
 protected:
     QRectF boundingRect() const;
@@ -65,7 +65,8 @@ private:
     QString feed;
     QString pump;
 
-    bool pointRed;
+    bool pointPump;
+
 
 protected:
     QRectF boundingRect() const ;
@@ -92,6 +93,8 @@ private:
     collrctorDialog *collrctorD;
 
     bool point;
+
+
 
 protected:
     QRectF boundingRect() const ;
