@@ -39,6 +39,8 @@ private slots:
     void handleError(QSerialPort::SerialPortError error);
     void writeData();
 
+    void openSlot();
+    void save_asSlot();
 
     void addPump();
     void addReactor();

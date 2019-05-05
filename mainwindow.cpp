@@ -3,6 +3,7 @@
 #include "settingsdialog.h"
 #include "moduls.h"
 
+#include <QFileDialog>
 #include <QtSerialPort/QSerialPort>
 #include <QtCore/QtGlobal>
 #include <QMessageBox>
@@ -19,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSettings, &QAction::triggered, settings, &MainWindow::show);
     connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
     connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
+    connect(ui->actionOpen, &QAction::triggered,this, &MainWindow::openSlot);
+    //connect(ui->actionSave, &QAction::triggered,this, &MainWindow::saveSlot);
+    connect(ui->actionSave_as, &QAction::triggered,this, &MainWindow::save_asSlot);
 
     ui->actionConnect->setDisabled(false);
     ui->actionDisconnect->setDisabled(true);
@@ -99,12 +103,17 @@ void MainWindow::pump4slot(QString str)
 
 void MainWindow::startSlot()
 {
-    serialStack.append(QString("1.%1").arg(speed_1));
-    serialStack.append(QString("2.%1").arg(speed_2));
-    serialStack.append(QString("3.%1").arg(speed_3));
-    serialStack.append(QString("4.%1").arg(speed_4));
+    if(serial->isOpen())
+        {
+            serialStack.append(QString("1.%1").arg(speed_1));
+            serialStack.append(QString("2.%1").arg(speed_2));
+            serialStack.append(QString("3.%1").arg(speed_3));
+            serialStack.append(QString("4.%1").arg(speed_4));
 
-    serialTimer->start(300);
+            serialTimer->start(300);
+        } else {
+           QMessageBox::information(0,"Error","Всё в говне");
+        }
 }
 
 //****************************************************Serisl*************************************
@@ -147,6 +156,23 @@ void MainWindow::readData()
 void MainWindow::writeData()
 {
     serial->write(serialStack.pop().toLocal8Bit());
+}
+
+void MainWindow::openSlot()
+{
+    QString f = QFileDialog::getOpenFileName(0,"Open file","","*.dat");
+}
+
+void MainWindow::save_asSlot()
+{
+    QString f = QFileDialog::getSaveFileName(0,"Save as...","","*.dat");
+
+       QFile file( f );
+       if ( file.open(QIODevice::ReadWrite) )
+       {
+           QTextStream stream( &f );
+           stream << "something" << endl;
+       }
 }
 
 void MainWindow::handleError(QSerialPort::SerialPortError error)
