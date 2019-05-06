@@ -49,7 +49,13 @@ private slots:
     void readData();
     void handleError(QSerialPort::SerialPortError error);
     void writeData();
+
+    void openSlot();
+    void save_asSlot();
+    void saveSlot();
+
     void temperControl();
+
 
     void addPump();
     void addReactor();

@@ -33,5 +33,5 @@ QString pumpDialog::getFeed()
 
 QString pumpDialog::getPump()
 {
-    return ui->pumpComboBox->currentText();
+    return  ui->pumpComboBox->currentText();
 }
